@@ -1849,6 +1849,7 @@ and see their updates.</string>
                                     <constraint firstAttribute="trailing" secondItem="fg8-1Q-chn" secondAttribute="trailing" constant="10" id="5Vl-zx-oJK"/>
                                     <constraint firstItem="h6N-mx-ywN" firstAttribute="top" secondItem="rH1-RF-jg0" secondAttribute="top" constant="12" id="82d-An-Dyp"/>
                                     <constraint firstAttribute="bottom" secondItem="fg8-1Q-chn" secondAttribute="bottom" constant="15" id="CVa-5c-bTD"/>
+                                    <constraint firstAttribute="trailing" secondItem="fg8-1Q-chn" secondAttribute="trailing" constant="10" id="GjU-9Y-4kw"/>
                                     <constraint firstItem="fg8-1Q-chn" firstAttribute="leading" secondItem="rH1-RF-jg0" secondAttribute="leading" constant="10" id="Mgx-MA-fQV"/>
                                     <constraint firstItem="Z0N-Vz-NwB" firstAttribute="leading" secondItem="rH1-RF-jg0" secondAttribute="leading" constant="10" id="QDe-Q9-zgJ"/>
                                     <constraint firstItem="h6N-mx-ywN" firstAttribute="leading" secondItem="rH1-RF-jg0" secondAttribute="leading" constant="20" id="VqV-7p-KxG"/>

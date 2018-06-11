@@ -91,9 +91,9 @@ class AddFriendVC: UIViewController, UITableViewDelegate, UITableViewDataSource,
                 
                 for user in users!{
                     
-                    let data = UserModel.init(jsonData: user)
-                    self.resultArry.append(data)
-                    self.userArray.append(data)
+//                    let data = UserModel.init(jsonData: user)
+//                    self.resultArry.append(data)
+//                    self.userArray.append(data)
                     
                 }
     
@@ -206,7 +206,7 @@ class AddFriendVC: UIViewController, UITableViewDelegate, UITableViewDataSource,
             
             AppManager.shared.showLoadingIndicator(view: self.view)
             
-            APIManager.shared.cancelFriendRequest(params: ["user_id": userArray[button.tag].id], token: UserDefaults.standard.string(forKey: TOKEN)!) { (error, response) in
+            APIManager.shared.cancelFriendRequest(params: ["user_id": userArray[button.tag].uid], token: UserDefaults.standard.string(forKey: TOKEN)!) { (error, response) in
                 
                 if error == nil{
                     
@@ -244,7 +244,7 @@ class AddFriendVC: UIViewController, UITableViewDelegate, UITableViewDataSource,
             
             AppManager.shared.showLoadingIndicator(view: self.view)
             
-            APIManager.shared.sendFriendRequest(params: ["cult_id": AppManager.shared.selectedCult.id, "user_id": requestedUser.id], token: UserDefaults.standard.string(forKey: TOKEN)!, completion: { (error, response) in
+            APIManager.shared.sendFriendRequest(params: ["cult_id": AppManager.shared.selectedCult.uid, "user_id": requestedUser.uid], token: UserDefaults.standard.string(forKey: TOKEN)!, completion: { (error, response) in
                 
                 if error == nil{
                     

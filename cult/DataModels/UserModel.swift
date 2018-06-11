@@ -11,7 +11,7 @@ import SwiftyJSON
 
 class UserModel: NSObject, NSCoding {
     
-    var id: Int!
+    var uid: String!
     var userName: String!
     var firstName: String!
     var lastName: String!
@@ -19,26 +19,26 @@ class UserModel: NSObject, NSCoding {
     var birthday: String!
     var profileImageUrl: String!
     var role: Int!
-    
+    var gender: String!
     override init() {
         
     }
     
-    init(jsonData: JSON){
+    init(jsonData: NSDictionary){
         
-        id = jsonData["id"].intValue
-        userName = jsonData["username"].stringValue
-        firstName = jsonData["first_name"].stringValue
-        lastName = jsonData["last_name"].stringValue
-        email = jsonData["email"].stringValue
-        birthday = jsonData["birth"].stringValue
-        role = jsonData["role"].intValue
-        profileImageUrl = jsonData["avatar_url"].stringValue
+        uid = jsonData["uid"] as! String?
+        userName = jsonData["username"] as! String
+        firstName = jsonData["first_name"] as! String
+        lastName = jsonData["last_name"] as! String
+        email = jsonData["email"] as! String
+        birthday = jsonData["birth"] as! String
+        role = jsonData["role"] as! Int
+        profileImageUrl = jsonData["avatar"] as! String
         
     }
     
     func encode(with aCoder: NSCoder) {
-        aCoder.encode(id, forKey: "id")
+        aCoder.encode(uid, forKey: "uid")
         aCoder.encode(userName, forKey: "userName")
         aCoder.encode(firstName, forKey: "firstName")
         aCoder.encode(lastName, forKey: "lastName")
@@ -52,7 +52,7 @@ class UserModel: NSObject, NSCoding {
         
         self.init()
         
-        id = aDecoder.decodeObject(forKey: "id") as! Int
+        uid = aDecoder.decodeObject(forKey: "uid") as! String
         userName = aDecoder.decodeObject(forKey: "userName") as! String
         firstName = aDecoder.decodeObject(forKey: "firstName") as! String
         lastName = aDecoder.decodeObject(forKey: "lastName") as! String

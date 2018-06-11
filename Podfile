@@ -21,6 +21,9 @@ target 'Cult' do
 	pod 'GrowingTextView', '~> 0.5'
     pod 'Firebase/Core'
     pod 'Firebase/Auth'
+    pod 'Firebase/Database'
+    pod 'Firebase/Storage'
+    pod 'GoogleSignIn'
 
 
 end

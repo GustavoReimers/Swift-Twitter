@@ -155,7 +155,7 @@ class APIManager: NSObject {
     
     // Send Friend Reqeust
     
-    func sendFriendRequest(params: [String: Int], token: String, completion: @escaping (Error?, JSON)->()){
+    func sendFriendRequest(params: [String: String], token: String, completion: @escaping (Error?, JSON)->()){
         
         let urlString = baseURL + "friend/request"
         
@@ -180,7 +180,7 @@ class APIManager: NSObject {
     
     // Cancel friend reqeust
     
-    func cancelFriendRequest(params: [String: Int], token: String, completion: @escaping (Error?, JSON)->()){
+    func cancelFriendRequest(params: [String: String], token: String, completion: @escaping (Error?, JSON)->()){
         
         let urlString = baseURL + "friend/request/delete"
         

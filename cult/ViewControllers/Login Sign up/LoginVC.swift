@@ -9,6 +9,8 @@
 import UIKit
 import IHKeyboardAvoiding
 import MBProgressHUD
+import FirebaseAuth
+import FirebaseDatabase
 
 class LoginVC: UIViewController, UITextFieldDelegate {
 
@@ -18,10 +20,13 @@ class LoginVC: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var avoidView: UIView!
     
     @IBOutlet weak var backButton: UIImageView!
-
+    let ref = Database.database().reference()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if Auth.auth().currentUser != nil{
+            
+        }
 
         AppManager.shared.setBorderToUIView(view: loginButton, width: 1, color: UIColor.init(rgb: 0x21283B))
 
@@ -48,8 +53,8 @@ class LoginVC: UIViewController, UITextFieldDelegate {
         }
         
         AppManager.shared.showLoadingIndicator(view: self.view)
-        
-        let params = ["username": usernameTextField.text!,
+        self.checkUsername()
+/*        let params = ["username": usernameTextField.text!,
                       "password": passwordTextField.text!]
         
         APIManager.shared.logIn(params: params) { (error, response) in
@@ -80,9 +85,48 @@ class LoginVC: UIViewController, UITextFieldDelegate {
             }
             
         }
-        
+        */
     }
-    
+    func checkUsername(){
+        self.ref.child("users").child(self.usernameTextField.text!).observeSingleEvent(of: .value, with: { (snapshot) in
+            let value = snapshot.value as? NSDictionary
+            let strPwd:String = self.passwordTextField.text!
+            if(value != nil){
+                let strPwdFrom:String = (value!["password"] as? String)!
+                let strEmail:String = (value!["email"] as? String)!
+                if(strPwd == strPwdFrom){
+                    
+                    Auth.auth().signIn(withEmail: strEmail, password: strPwd){(user,error) in
+                        if error != nil{
+                            AppManager.shared.hideLoadingIndicator()
+                            AppManager.shared.showAlert(title: "Login Failed", msg: "Try again later.", activity: self)
+                        }else{
+                            UserDefaults.standard.setValue(user?.uid, forKey: TOKEN)
+                            UserDefaults.standard.set(true, forKey: ISLOGGEDIN)
+                            let user: UserModel = UserModel.init(jsonData: value!)
+                            let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: user)
+                            UserDefaults.standard.set(encodedData, forKey: USER_DATA)
+                            AppManager.shared.goToMainTabBar()
+                        }
+                    }
+ 
+                        
+                }else{
+                    AppManager.shared.hideLoadingIndicator()
+                    AppManager.shared.showAlert(title: "Wrong Password", msg: "Input correct password.", activity: self)
+                }
+            }
+            else{
+                AppManager.shared.hideLoadingIndicator()
+                AppManager.shared.showAlert(title: "Login Failed", msg: "User not exist.", activity: self)
+            }
+            
+        }) { (error) in
+            AppManager.shared.hideLoadingIndicator()
+            AppManager.shared.showAlert(title: "Login Failed", msg: "Try again later.", activity: self)
+            print(error.localizedDescription)
+        }
+    }
     func setPlaceholder(textField: UITextField, placeholderString: String){
         
         textField.defaultTextAttributes.updateValue(1.5, forKey: NSAttributedStringKey.kern.rawValue)

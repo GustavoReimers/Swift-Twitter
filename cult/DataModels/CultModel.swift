@@ -11,7 +11,7 @@ import SwiftyJSON
 
 class CultModel: NSObject {
     
-    var id: Int!
+    var uid: String!
     var cultName: String!
     
     override init() {
@@ -20,7 +20,7 @@ class CultModel: NSObject {
     
     init(jsonData: JSON){
         
-        id = jsonData["id"].intValue
+        uid = jsonData["uid"].stringValue
         cultName = jsonData["cult_name"].stringValue
         
     }

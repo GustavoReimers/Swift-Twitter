@@ -10,6 +10,9 @@ import UIKit
 import IHKeyboardAvoiding
 import MBProgressHUD
 import Alamofire
+import FirebaseDatabase
+import FirebaseStorage
+import FirebaseAuth
 
 class SignupVC: UIViewController, UITextFieldDelegate,UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
 
@@ -35,6 +38,9 @@ class SignupVC: UIViewController, UITextFieldDelegate,UINavigationControllerDele
     
     var genderArray = ["Male", "Female", "Other"]
     var selectedGender: String!
+    var strImageUrl = "";
+    let ref = Database.database().reference()
+    let storageRef = Storage.storage().reference();
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -109,6 +115,7 @@ class SignupVC: UIViewController, UITextFieldDelegate,UINavigationControllerDele
 //        bottomTextView.attributedText = attributedString
 //        bottomTextView.textAlignment = .center
         
+        
     }
     
     //show camera/photo gallery options sheet
@@ -162,7 +169,6 @@ class SignupVC: UIViewController, UITextFieldDelegate,UINavigationControllerDele
         
         photoImage = info[UIImagePickerControllerEditedImage] as? UIImage
         photoImageView.image = photoImage
-        
         self.dismiss(animated: true, completion: nil)
         
     }
@@ -186,16 +192,14 @@ class SignupVC: UIViewController, UITextFieldDelegate,UINavigationControllerDele
     }
     
     func setBottomBorder(sender: UITextField){
-        
         let border = CALayer()
         let width = CGFloat(2.0)
         border.borderColor = UIColor.init(rgb: 0x134358).cgColor
         border.frame = CGRect(x: 0, y: sender.frame.size.height - width, width:  sender.frame.size.width, height: sender.frame.size.height)
-        
+
         border.borderWidth = width
         sender.layer.addSublayer(border)
         sender.layer.masksToBounds = true
-        
     }
 
     @IBAction func birthdayEditingDidBegin(_ sender: Any) {
@@ -301,28 +305,10 @@ class SignupVC: UIViewController, UITextFieldDelegate,UINavigationControllerDele
         //register user
         
         AppManager.shared.showLoadingIndicator(view: self.view)
+        self.checkUsername()
         
-        let genderIndex: Int!
-        
-        if genderTextField.text == "Male"{
-            genderIndex = 0
-        }else if genderTextField.text == "Female"{
-            genderIndex = 1
-        }else{
-            genderIndex = 2
-        }
-        
-        let params = ["username": usernameTextField.text!,
-                      "first_name": firstnameTextField.text!,
-                      "last_name": lastnameTextField.text!,
-                      "email": emailTextField.text!,
-                      "birth": birthdayTextField.text!,
-                      "role": 0,
-                      "password": passwordTextField.text!,
-                      "gender": genderIndex ] as [String: Any]
-        
-        print(params)
-        
+        /*
+        self.uploadPhoto()
         APIManager.shared.singUp(params: params) { (error, response) in
             
             if error == nil{
@@ -361,7 +347,6 @@ class SignupVC: UIViewController, UITextFieldDelegate,UINavigationControllerDele
                 
                     AppManager.shared.hideLoadingIndicator()
                     AppManager.shared.showAlert(title: "Oops!", msg: errorMessage, activity: self)
-                    
                 }
                 
             }else{
@@ -372,36 +357,138 @@ class SignupVC: UIViewController, UITextFieldDelegate,UINavigationControllerDele
             }
             
         }
+ */
         
+    }
+
+    
+    //Check Username exist
+    func checkUsername(){
+        self.ref.child("users").child(self.usernameTextField.text!).observeSingleEvent(of: .value, with: { (snapshot) in
+            let value = snapshot.value as? NSDictionary
+            if(value != nil){
+                AppManager.shared.hideLoadingIndicator()
+                AppManager.shared.showAlert(title: "Oops!", msg: "Username is Already Exist", activity: self)
+            }
+            else{
+                self.uploadPhoto()
+            }
+            
+        }) { (error) in
+            AppManager.shared.hideLoadingIndicator()
+            AppManager.shared.showAlert(title: "Signup Failed", msg: "Try again later.", activity: self)
+            print(error.localizedDescription)
+        }
     }
     
     //Upload photo
-    
     func uploadPhoto(){
-        
         if photoImage != nil{
-
-            APIManager.shared.profilePhotoUpload(params: ["image": AppManager.shared.convertImageToBase64(image: photoImageView.image!)], token: UserDefaults.standard.string(forKey: TOKEN)!) { (error, response) in
-                
-                if error == nil{
-                    print(response)
-                    let user: UserModel = UserModel.init(jsonData: response["user"])
-                    let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: user)
-                    UserDefaults.standard.set(encodedData, forKey: USER_DATA)
-                }else{
-                    print(error!.localizedDescription)
-                }
-                
-                AppManager.shared.hideLoadingIndicator()
-                self.performSegue(withIdentifier: "FindFriendRequestSegue", sender: self)
-                
-            }
+            var data = NSData()
+            data = UIImageJPEGRepresentation(photoImage!, 0.3)! as NSData
+            let metaData = StorageMetadata()
+            metaData.contentType = "image/jpg"
+            // set upload path
+            
+            
+            let imageName = usernameTextField.text!
+            let storeImage = self.storageRef.child("profile_Images").child(imageName)
+            storeImage.putData(data as Data, metadata: metaData, completion: { (metaData, error) in
+                storeImage.downloadURL(completion: { (url, error) in
+                    if let urlText = url?.absoluteString {
+                        self.strImageUrl = urlText
+                        self.doSignup()
+                    }
+                    else{
+                        print(error)
+                        AppManager.shared.hideLoadingIndicator()
+                        AppManager.shared.showAlert(title: "Signup Failed", msg: "Try again later.", activity: self)
+                    }
+                })
+            })
+            
+//            storageRef.child(filePath).putData(data as Data, metadata: metaData){(metaData,error) in
+//                storeImage.downloadURL(completion: { (url, error) in
+//                    if let urlText = url?.absoluteString {
+//
+//                        strURL = urlText
+//                        print("///////////tttttttt//////// \(strURL)   ////////")
+//
+//                        completion(strURL)
+//                    }
+//                })
+//                if let error = error {
+//                    print(error.localizedDescription)
+//                    return
+//                }else{
+//                    //store downloadURL
+//                    let downloadURL = metaData!.downloadURL()!.absoluteString
+//                    print(downloadURL)
+//                    //store downloadURL at database
+////                    self.databaseRef.child("users").child(FIRAuth.auth()!.currentUser!.uid).updateChildValues(["userPhoto": downloadURL])
+//                }
+//
+//            }
+            
+//            APIManager.shared.profilePhotoUpload(params: ["image": AppManager.shared.convertImageToBase64(image: photoImageView.image!)], token: UserDefaults.standard.string(forKey: TOKEN)!) { (error, response) in
+//
+//                if error == nil{
+//                    print(response)
+//                    let user: UserModel = UserModel.init(jsonData: response["user"])
+//                    let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: user)
+//                    UserDefaults.standard.set(encodedData, forKey: USER_DATA)
+//                }else{
+//                    print(error!.localizedDescription)
+//                }
+//
+//                AppManager.shared.hideLoadingIndicator()
+//                self.performSegue(withIdentifier: "FindFriendRequestSegue", sender: self)
+//
+//            }
             
         }else{
-            AppManager.shared.hideLoadingIndicator()
-            self.performSegue(withIdentifier: "FindFriendRequestSegue", sender: self)
+            self.doSignup()
         }
-        
+    }
+    func doSignup(){
+        Auth.auth().createUser(withEmail:  emailTextField.text!, password: passwordTextField.text!) { (user, error) in
+            if let error = error {
+                print(error.localizedDescription)
+                AppManager.shared.hideLoadingIndicator()
+                AppManager.shared.showAlert(title: "Signup Failed", msg: "Try again later.", activity: self)
+            }
+            else if let user = user {
+                print("Sign Up Successfully. \(user.uid)")
+                let genderIndex: Int!
+                
+                if self.genderTextField.text == "Male"{
+                    genderIndex = 0
+                }else if self.genderTextField.text == "Female"{
+                    genderIndex = 1
+                }else{
+                    genderIndex = 2
+                }
+                
+                let params = ["username": self.usernameTextField.text!,
+                              "first_name": self.firstnameTextField.text!,
+                              "last_name": self.lastnameTextField.text!,
+                              "email": self.emailTextField.text!,
+                              "birth": self.birthdayTextField.text!,
+                              "role": 0,
+                              "password": self.passwordTextField.text!,
+                              "avatar":self.strImageUrl,
+                              "gender": genderIndex,
+                              "uid":user.uid] as NSDictionary
+                self.ref.child("users").child(self.usernameTextField.text!).setValue(params)
+                AppManager.shared.hideLoadingIndicator()
+                
+                let user: UserModel = UserModel.init(jsonData: params)
+                let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: user)
+                UserDefaults.standard.set(encodedData, forKey: USER_DATA)
+                
+                self.performSegue(withIdentifier: "FindFriendRequestSegue", sender: self)
+            }
+        }
     }
 
     func isValidEmail(testStr:String) -> Bool {
@@ -433,7 +520,6 @@ class SignupVC: UIViewController, UITextFieldDelegate,UINavigationControllerDele
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
-
 }
 
 extension UIToolbar {

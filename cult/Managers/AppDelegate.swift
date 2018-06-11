@@ -15,20 +15,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        
+        FirebaseApp.configure()
         Thread.sleep(forTimeInterval: 1.5)
-
         UITextField.appearance().keyboardAppearance = .dark
-
+        
         if UserDefaults.standard.bool(forKey: ISLOGGEDIN){
-            
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let controller = storyboard.instantiateViewController(withIdentifier: "MainTab")
             window?.rootViewController = controller
-            
         }
         
-        FirebaseApp.configure()
+        
         
         return true
     }

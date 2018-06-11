@@ -37,11 +37,16 @@ final class AppManager {
         activity.present(alert, animated: true, completion: nil)
     }
 
-    func showAlert(title: String, msg: String, activity: UIViewController) -> Void {
+    func showAlert(title: String, msg: String, activity: UIViewController, complete:(()->Void)? = nil) -> Void
+    {
         let alert = UIAlertController(title: title, message: msg, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: { alert in
+            complete?()
+        }
+        ))
         activity.present(alert, animated: true, completion: nil)
     }
+
     
     func showLoadingIndicator(view: UIView){
         loadingNotification = MBProgressHUD.showAdded(to: view, animated: true)

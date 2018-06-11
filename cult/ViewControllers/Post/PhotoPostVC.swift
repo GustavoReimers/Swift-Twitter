@@ -8,6 +8,8 @@
 
 import UIKit
 import GrowingTextView
+import FirebaseStorage
+import FirebaseDatabase
 
 class PhotoPostVC: UIViewController, UITextViewDelegate {
 
@@ -19,6 +21,10 @@ class PhotoPostVC: UIViewController, UITextViewDelegate {
     
     var postImage: UIImage!
     
+    let ref = Database.database().reference()
+    let storageRef = Storage.storage().reference();
+    var user:UserModel? = nil
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -29,26 +35,28 @@ class PhotoPostVC: UIViewController, UITextViewDelegate {
         backButton.addGestureRecognizer(tap)
         
         let decoded = UserDefaults.standard.object(forKey: USER_DATA) as! Data
-        let user = NSKeyedUnarchiver.unarchiveObject(with: decoded) as! UserModel
+        self.user = NSKeyedUnarchiver.unarchiveObject(with: decoded) as? UserModel
         
+
+        
+    }
+    override func viewDidLayoutSubviews() {
         let maskPath = UIBezierPath(roundedRect: postImageView.bounds,
                                     byRoundingCorners: [.bottomLeft, .topRight],
-                                    cornerRadii: CGSize(width: 10.0, height: 10.0))
+                                    cornerRadii: CGSize(width: 20.0, height: 20.0))
         
         let shape = CAShapeLayer()
         shape.path = maskPath.cgPath
         postImageView.layer.mask = shape
-
+        
         captionTextField.delegate = self
         
         postImageView.image = postImage
         
-        profilePhotoImageView.sd_setImage(with: URL.init(string: user.profileImageUrl), placeholderImage: UIImage.init(named: "person-placeholder"), options: .refreshCached) { (image, error, cacheType, url) in
+        profilePhotoImageView.sd_setImage(with: URL.init(string: (user?.profileImageUrl)!), placeholderImage: UIImage.init(named: "person-placeholder"), options: .refreshCached) { (image, error, cacheType, url) in
             //do something
         }
-        
     }
-    
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
             textView.resignFirstResponder()
@@ -110,22 +118,51 @@ class PhotoPostVC: UIViewController, UITextViewDelegate {
             return
         }
         
-        if AppManager.shared.selectedCultsForPost.count == 0{
-            AppManager.shared.showAlert(title: "Oops!", msg: "Please select cults.", activity: self)
-            return
-        }
+//        if AppManager.shared.selectedCultsForPost.count == 0{
+//            AppManager.shared.showAlert(title: "Oops!", msg: "Please select cults.", activity: self)
+//            return
+//        }
         
         AppManager.shared.showLoadingIndicator(view: self.view)
         
-        var cultIds: [Int] = []
+        var cultIds: [String] = []
         for cult in AppManager.shared.selectedCultsForPost{
-            cultIds.append(cult.id)
+            cultIds.append(cult.uid)
         }
         
-        let params = ["image": AppManager.shared.convertImageToBase64(image: postImage!),
-                      "caption": captionTextField.text,
-                      "cult_ids": cultIds] as [String: Any]
+        var data = NSData()
+        data = UIImageJPEGRepresentation(postImage!, 0.8)! as NSData
+        // set upload path
         
+        let metaData = StorageMetadata()
+        metaData.contentType = "image/jpg"
+        let imageName = "" + String(getCurrentMillis())
+        let storeImage = self.storageRef.child("posts").child(imageName)
+        
+        storeImage.putData(data as Data, metadata: metaData, completion: { (metaData, error) in
+            storeImage.downloadURL(completion: { (url, error) in
+                if let urlText = url?.absoluteString {
+                    let params = ["image":urlText,
+                                  "caption":self.captionTextField.text,
+                                  "cult_ids": cultIds,
+                                  "uid":self.user?.uid ?? ""] as NSDictionary
+                    self.ref.child("posts").child(imageName).setValue(params)
+                    AppManager.shared.hideLoadingIndicator()
+                    AppManager.shared.showAlert(title: "Posting Success", msg: "Your post successfully posted.", activity: self, complete: {
+                    self.navigationController?.popViewController(animated: true)
+                    });
+                }
+                else{
+                    print(error ?? "")
+                    AppManager.shared.hideLoadingIndicator()
+                    AppManager.shared.showAlert(title: "Posting Failed", msg: "Try again later.", activity: self, complete: {
+                        print("")
+                    });
+                }
+            })
+        })
+        
+        /*
         APIManager.shared.postPhoto(params: params, token: UserDefaults.standard.string(forKey: TOKEN)!) { (error, response) in
             
             print(response)
@@ -144,9 +181,11 @@ class PhotoPostVC: UIViewController, UITextViewDelegate {
             
             AppManager.shared.hideLoadingIndicator()
         }
-        
+        */
     }
-    
+    func getCurrentMillis()->Int64 {
+        return Int64(Date().timeIntervalSince1970 * 1000)
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
