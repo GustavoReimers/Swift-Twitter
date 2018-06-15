@@ -24,9 +24,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let controller = storyboard.instantiateViewController(withIdentifier: "MainTab")
             window?.rootViewController = controller
         }
-        
-        
-        
         return true
     }
 

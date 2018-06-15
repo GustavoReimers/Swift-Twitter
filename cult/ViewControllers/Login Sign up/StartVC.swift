@@ -8,16 +8,15 @@
 
 import UIKit
 
-class HomeVC: UIViewController {
+class StartVC: UIViewController {
 
-    @IBOutlet weak var loginButton: UIButton!
-    @IBOutlet weak var signupButton: UIButton!
-    
+   
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        AppManager.shared.setBorderToUIView(view: loginButton, width: 1, color: UIColor.init(rgb: 0x21283B))
-        AppManager.shared.setBorderToUIView(view: signupButton, width: 1, color: UIColor.init(rgb: 0x21283B))
+//        AppManager.shared.setBorderToUIView(view: loginButton, width: 1, color: UIColor.init(rgb: 0x21283B))
+//        AppManager.shared.setBorderToUIView(view: signupButton, width: 1, color: UIColor.init(rgb: 0x21283B))
         
     }
 

@@ -131,7 +131,7 @@ class PhotoPostVC: UIViewController, UITextViewDelegate {
         }
         
         var data = NSData()
-        data = UIImageJPEGRepresentation(postImage!, 0.8)! as NSData
+        data = UIImageJPEGRepresentation(postImage!, 0.3)! as NSData
         // set upload path
         
         let metaData = StorageMetadata()
@@ -142,10 +142,15 @@ class PhotoPostVC: UIViewController, UITextViewDelegate {
         storeImage.putData(data as Data, metadata: metaData, completion: { (metaData, error) in
             storeImage.downloadURL(completion: { (url, error) in
                 if let urlText = url?.absoluteString {
+                    let userName = (self.user?.firstName)! + " " + (self.user?.lastName)!;
                     let params = ["image":urlText,
                                   "caption":self.captionTextField.text,
                                   "cult_ids": cultIds,
-                                  "uid":self.user?.uid ?? ""] as NSDictionary
+                                  "user_avatar":self.user?.profileImageUrl ?? "",
+                                  "display_name": userName,
+                                  "type":5,
+                                  "time":self.getCurrentMillis(),
+                                  "user_name":self.user?.userName ?? ""] as NSDictionary
                     self.ref.child("posts").child(imageName).setValue(params)
                     AppManager.shared.hideLoadingIndicator()
                     AppManager.shared.showAlert(title: "Posting Success", msg: "Your post successfully posted.", activity: self, complete: {

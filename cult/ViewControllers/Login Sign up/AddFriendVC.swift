@@ -88,15 +88,7 @@ class AddFriendVC: UIViewController, UITableViewDelegate, UITableViewDataSource,
                 print(response)
                 
                 let users = response["friends"].array
-                
-                for user in users!{
-                    
-//                    let data = UserModel.init(jsonData: user)
-//                    self.resultArry.append(data)
-//                    self.userArray.append(data)
-                    
-                }
-    
+            
                 self.userTable.reloadData()
                 
             }else{
