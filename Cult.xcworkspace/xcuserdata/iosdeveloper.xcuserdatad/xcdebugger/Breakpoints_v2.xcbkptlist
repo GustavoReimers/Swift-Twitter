@@ -105,8 +105,8 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "cult/ViewControllers/Home/HomeVC.swift"
-            timestampString = "550728209.927864"
+            filePath = "Cult/ViewControllers/Home/HomeVC.swift"
+            timestampString = "550778158.546989"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "44"
@@ -121,13 +121,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "cult/ViewControllers/Home/HomeVC.swift"
-            timestampString = "550728209.928149"
+            filePath = "Cult/ViewControllers/Home/HomeVC.swift"
+            timestampString = "550778158.622569"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "72"
             endingLineNumber = "72"
-            landmarkName = "getPosts()"
+            landmarkName = "tableView(_:numberOfRowsInSection:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

@@ -22,17 +22,16 @@ class PostImageCell: UITableViewCell {
     @IBOutlet weak var btn_view: RadiusButtonGradient!
     @IBOutlet weak var btn_reply: RadiusButtonGradient!
     @IBOutlet weak var btn_cheer: RadiusButtonGradient!
-    
+
     override func layoutSubviews() {
         btn_reply.gradientLayer.frame = btn_reply.bounds
         btn_view.gradientLayer.frame = btn_view.bounds
         let maskPath = UIBezierPath(roundedRect: img_post.bounds,
                                     byRoundingCorners: [.bottomLeft, .topRight],
-                                    cornerRadii: CGSize(width: 20.0, height: 20.0))
+                                    cornerRadii: CGSize(width: 15.0, height: 15.0))
         let shape = CAShapeLayer()
         shape.path = maskPath.cgPath
-        img_post.layer.mask = shape
-        
+        img_post.layer.mask = shape        
         img_profile.layer.cornerRadius = img_profile.frame.size.width / 2
         img_profile.clipsToBounds = true
     }

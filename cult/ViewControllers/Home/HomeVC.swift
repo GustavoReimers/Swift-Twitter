@@ -25,9 +25,9 @@ class HomeVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         AppManager.shared.showLoadingIndicator(view: self.view)
         self.table_posts.delegate = self;
         self.table_posts.dataSource = self;
-        self.refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh", attributes:[NSAttributedStringKey.foregroundColor:UIColor.green])
+        self.refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh", attributes:[NSAttributedStringKey.foregroundColor:UIColor.white])
         self.refreshControl.addTarget(self, action: #selector(reloadPosts), for: UIControlEvents.valueChanged)
-        self.refreshControl.tintColor = UIColor.green
+        self.refreshControl.tintColor = UIColor.white
         self.table_posts.addSubview(self.refreshControl)
         
         let decoded = UserDefaults.standard.object(forKey: USER_DATA) as! Data
@@ -80,8 +80,10 @@ class HomeVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         
         //Date Formatter
         let dateVar = Date(timeIntervalSince1970: self.postArray[indexPath.row].nTimeMili/1000)
-        var dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM d, yyyy hh:mm"
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "h:mm a"
+        dateFormatter.amSymbol = "AM"
+        dateFormatter.pmSymbol = "PM"
         cell.label_time.text = dateFormatter.string(from: dateVar)
         
         //user avatar
